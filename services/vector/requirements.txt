@@ -1,0 +1,16 @@
+python-dotenv==1.0.1
+confluent-kafka==2.3.0
+pydantic==2.6.4
+pydantic-settings==2.2.1
+transformers==4.39.1
+sentence-transformers==2.5.1
+pip-system-certs==4.0
+torch==2.3.0
+requests==2.32.3
+numpy==1.24.1
+
+tenacity==8.2.2
+opentelemetry-api==1.25.0
+opentelemetry-sdk==1.25.0
+opentelemetry-instrumentation-logging==0.46b0
+opentelemetry-exporter-jaeger==1.21.0

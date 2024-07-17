@@ -1,0 +1,9 @@
+services:
+  mongo:
+    image: mongo:6.0.15
+    restart: always
+    ports:
+      - "${MONGO_EXPOSE_PORT}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}

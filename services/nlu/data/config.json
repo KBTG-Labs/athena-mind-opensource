@@ -1,0 +1,27 @@
+[
+    {
+        "adapter": "web_account",
+        "name": "Account Expert",
+        "role": "Answer the question about four accounts: FCD (Foreign Currency Deposit), K-eSaving and other types of accounts",
+        "type": "rag",
+        "host": "localhost:8900",
+        "config": {
+            "mongo_db_name": "athena-web-account",
+            "mongo_collection_name": "testing",
+            "opensearch_index": "athena-web-account",
+            "prompt": {
+                "dir": "config/adapter/web_account/prompt",
+                "query_generate_prompt": "query_generation_prompt.txt",
+                "qa_prompt": "qa_prompt.txt",
+                "response_control_prompt": "rc_prompt.txt"
+            }
+        }
+    },
+    {
+        "adapter": "general_handler",
+        "name": "General Handler",
+        "role": "Answer any questions about others",
+        "type": "custom",
+        "host": "localhost:8900"
+    }
+]

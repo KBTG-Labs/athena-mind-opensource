@@ -1,0 +1,9 @@
+services:
+  data-prep:
+    env_file:
+      - ./.env
+    environment:
+      MONGO_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_HOST: mongo:27017
+    build: .

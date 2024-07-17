@@ -1,0 +1,4 @@
+confluent-kafka==2.3.0
+pydantic==2.6.4
+pydantic-settings==2.2.1
+aioredis==2.0.1

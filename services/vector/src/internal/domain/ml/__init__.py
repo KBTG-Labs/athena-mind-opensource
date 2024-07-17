@@ -1,0 +1,1 @@
+from .vector_model_interface import IVectorModel

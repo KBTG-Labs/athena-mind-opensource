@@ -1,0 +1,180 @@
+services:
+  zookeeper:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: zookeeper
+    networks:
+      - "athena-mind-net"
+
+  kafka:
+    env_file:
+      - .env
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka
+    networks:
+      - "athena-mind-net"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+
+  kafka-init:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka-init
+    networks:
+      - "athena-mind-net"
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  mongo:
+    env_file:
+      - .env
+    extends:
+      file: deployments/docker-compose-mongo.yml
+      service: mongo    
+    networks:
+      - "athena-mind-net"
+
+  opensearch-node:
+    extends:
+      file: deployments/docker-compose-opensearch.yml
+      service: opensearch-node    
+    networks:
+      - "athena-mind-net"
+
+  opensearch-dashboards:
+    env_file:
+      - .env
+    extends:
+      file: deployments/docker-compose-opensearch.yml
+      service: opensearch-dashboards    
+    networks:
+      - "athena-mind-net"
+    depends_on:
+      - opensearch-node
+
+  data-prep:
+    environment:
+      MONGO_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    extends:
+      file: scripts/data-prep/docker-compose.yml
+      service: data-prep
+    networks:
+      - "athena-mind-net"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      opensearch-node:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+
+  service-nlu:
+    environment:
+      ENABLE_TELEMETRY: ${ENABLE_TELEMETRY}
+      TELEMETRY_COLLECTOR_ENDPOINT: ${TELEMETRY_COLLECTOR_ENDPOINT}
+    extends:
+      file: services/nlu/docker-compose.yml
+      service: service-nlu
+    networks:
+      - "athena-mind-net"
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "${NLU_SERVICE_EXPOSE_PORT}:8901"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      data-prep:
+        condition: service_completed_successfully
+
+  service-adapter:
+    environment:
+      MONGO_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ENABLE_TELEMETRY: ${ENABLE_TELEMETRY}
+      TELEMETRY_COLLECTOR_ENDPOINT: ${TELEMETRY_COLLECTOR_ENDPOINT}
+    extends:
+      file: services/adapter/docker-compose.yml
+      service: service-adapter
+    networks:
+      - "athena-mind-net"
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "${ADAPTER_SERVICE_EXPOSE_PORT}:8900"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      data-prep:
+        condition: service_completed_successfully
+
+  service-llm:
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      ENABLE_TELEMETRY: ${ENABLE_TELEMETRY}
+      TELEMETRY_COLLECTOR_ENDPOINT: ${TELEMETRY_COLLECTOR_ENDPOINT}
+    extends:
+      file: services/llm/docker-compose.yml
+      service: service-llm
+    networks:
+      - "athena-mind-net"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      data-prep:
+        condition: service_completed_successfully
+#####################################
+# GPU
+# After using model from hugging face, please uncomment this
+#####################################
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: 1
+#              capabilities: [ gpu ]
+
+  service-vector:
+    environment:
+      ENABLE_TELEMETRY: ${ENABLE_TELEMETRY}
+      TELEMETRY_COLLECTOR_ENDPOINT: ${TELEMETRY_COLLECTOR_ENDPOINT}
+    extends:
+      file: services/vector/docker-compose.yml
+      service: service-vector
+    networks:
+      - "athena-mind-net"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+      data-prep:
+        condition: service_completed_successfully
+
+#####################################
+# Tracing Service
+# Example to set up UI tracing service. if you want to enable tracing.
+#####################################
+#  jaeger:
+#    extends:
+#      file: deployments/docker-compose-jaeger.yml
+#      service: jaeger
+#    networks:
+#      - "athena-mind-net"
+                  
+volumes:
+  opensearch-data:
+
+networks:
+  athena-mind-net:

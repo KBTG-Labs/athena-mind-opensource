@@ -1,0 +1,19 @@
+services:
+  zookeeper:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: zookeeper
+  kafka:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka
+  kafka-init:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka-init
+  service-nlu:
+    env_file:
+      - ./.env
+    build: .
+    ports:
+      - "0.0.0.0:${NLU_SERVICE_EXPOSE_PORT}:8901"

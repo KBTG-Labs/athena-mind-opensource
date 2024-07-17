@@ -1,0 +1,37 @@
+services:
+  zookeeper:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: zookeeper
+  kafka:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka
+  kafka-init:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka-init
+  mongo:
+    extends:
+      file: deployments/docker-compose-mongo.yml
+      service: mongo
+  opensearch-node:
+    extends:
+      file: deployments/docker-compose-opensearch.yml
+      service: opensearch-node
+    volumes:
+      - opensearch-data-adapter:/usr/share/opensearch/data
+  opensearch-dashboards:
+    extends:
+      file: deployments/docker-compose-opensearch.yml
+      service: opensearch-dashboards
+  service-adapter:
+    env_file:
+      - ./.env
+    build: .
+
+volumes:
+  opensearch-data-adapter:
+
+networks:
+  athena-mind-net-adapter:

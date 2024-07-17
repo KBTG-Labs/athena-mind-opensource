@@ -1,0 +1,24 @@
+{
+    "topics":[
+        {
+            "name":"llm-request",
+            "partition":1,
+            "replica":1
+        },
+        {
+            "name":"llm-response",
+            "partition":1,
+            "replica":1
+        },
+        {
+            "name":"vector-request",
+            "partition":1,
+            "replica":1
+        },
+        {
+            "name":"vector-response",
+            "partition":1,
+            "replica":1
+        }
+    ]
+}

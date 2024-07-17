@@ -1,92 +1,226 @@
-# athena-mind-opensource
+# Athena-mind-opensource
 
-This repository controlled by DevOps API
+Athena-mind-opensource is a chatbot framework designed to save you from building a chatbot from scratch.
 
-## Getting started
+## System Diagram
+![AthenaMindSystemDiagram](.github/AthenaMind_Diagram.png?raw=true)
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Key Features 
+* __Versatile Adapter Support for Multiple Use Cases__
+  * Ready-to-use RAG template to quickly set up a pre-defined RAG with your documents
+  * Fully customizable using Langchain for more complex processes
+* __Intelligent Routing Between Adapters__
+  * Seamless routing powered by LLM using only adapter names and roles
+* __Production-Ready LLM & Vector Model Deployment__
+  * Ready for production deployment along with message queues for batch processing using Kafka
+* __User-Friendly Interface with Chainlit__
+  * Communicates with REST API and provides a simple UI for chatting
+* __Efficient Data Preparation__
+  * Prepares data from various formats for seamless processing and use by the RAG adapter created by the template
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Prerequisites
+### Hardware Requirements
+| LLM                        | CPU | Memory | GPU | GPU Memory |
+|----------------------------|-----|--------|-----|------------|
+| Gemini (Cloud Service)     | 4   | 16GB   | -   | -          |
+| Hugging Face (Self-Hosted) | 8   | 32GB   | 1   | 16 GB      |
 
-## Add your files
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Software Requirements
+Ensure you have installed the following prerequisites on your development machine
+* Docker
+* Docker Compose 2.20.3+
+* MongoDB Compass (optional)
+* [Gemini API Key](https://aistudio.google.com/app/apikey)
+* [Hugging Face Access Token](https://huggingface.co/docs/hub/en/security-tokens)
 
-```
-cd existing_repo
-git remote add origin https://kscm.kasikornbank.com:8443/769.04/enterprise-search/athena-mind-opensource.git
-git branch -M main
-git push -uf origin main
-```
+## Getting Started
+The provided datasource refers to information about __KBank’s bank account__ from the following links:
+* [บัญชีเงินฝากออมทรัพย์ K-eSavings](https://www.kasikornbank.com/th/personal/digital-banking/pages/k-esavings-account.aspx)
+* [เปิดบัญชีเงินฝากออมทรัพย์ K-eSavings ผ่าน K PLUS](https://www.kasikornbank.com/th/personal/Digital-banking/Pages/k-esavings-account-opening-have-kplus.aspx)
+* [ขั้นตอนการเปิดบัญชีออนไลน์ K-eSavings สำหรับลูกค้าใหม่](https://www.kasikornbank.com/th/personal/Digital-banking/Pages/k-esavings-account-opening-have-no-kplus.aspx)
+* [บัญชีเงินฝากออมทรัพย์](https://www.kasikornbank.com/th/personal/account/pages/savings.aspx)
+* [บัญชีเงินฝากประจำ](https://www.kasikornbank.com/th/personal/account/pages/fixed.aspx)
+* [บัญชีเงินฝากกระแสรายวัน](https://www.kasikornbank.com/th/personal/account/pages/current.aspx)
+* [บัญชีเงินฝากเงินตราต่างประเทศ](https://www.kasikornbank.com/th/personal/account/pages/foreign-currency.aspx)
 
-## Integrate with your tools
+Here are the instructions to run with the sample data source provided in the `data` folder.
 
-- [ ] [Set up project integrations](https://kscm.kasikornbank.com:8443/769.04/enterprise-search/athena-mind-opensource/-/settings/integrations)
+1. Set up your `.env` file with your specific values.
+    ```dotenv
+    # Kafka config
+    # KAFKA_EXPOSE_PORT MUST NOT be set to `9092`
+    KAFKA_EXPOSE_PORT=9093
+    
+    # Mongo config
+    MONGO_INITDB_ROOT_USERNAME= #REQUIRED
+    MONGO_INITDB_ROOT_PASSWORD= #REQUIRED
+    MONGO_EXPOSE_PORT=27017
+    
+    # Opensearch config
+    OPENSEARCH_DASHBOARD_EXPOSE_PORT=5601
+    
+    # NLU
+    NLU_SERVICE_EXPOSE_PORT=8901
+    
+    # Adapter Service
+    ADAPTER_SERVICE_EXPOSE_PORT=8900
+    
+    # Gemini
+    GEMINI_API_KEY= #REQUIRED
+    
+    ##########################
+    # OpenTelemetry
+    # To enable telemetry, you need to modify the `docker-compose.yml` file to configure the tracing UI first.
+    # If you are using an example, here is a sample configuration.
+    
+    # ENABLE_TELEMETRY=True
+    # TELEMETRY_COLLECTOR_ENDPOINT="http://jaeger:14268/api/traces?format=jaeger.thrift"
+    ##########################
+    ENABLE_TELEMETRY=False
+    TELEMETRY_COLLECTOR_ENDPOINT=
+    ```
+   
+    > [!IMPORTANT]
+    > Ensure that __KAFKA_EXPOSE_PORT__ is not configured as 9092
+   
+2. Running service
+   ```shell
+   docker compose up --build -d
+   ```
+   Wait until data-prep is ready, then you can access the UI chatbot by opening [http://localhost:8901](http://localhost:8901)
+   ![AthenaMindChainlit](.github/AthenaMind_Chainlit.png?raw=true)
 
-## Collaborate with your team
+3. Sample command for using Docker Compose.
+* Check service health
+  ```shell
+  docker compose ps
+  ```
+* View service logs
+  ```shell
+  # specific service
+  docker compose logs {{service name}}
+  # all service
+  docker compose logs -f
+  ```
+  > [!NOTE]
+  > {{service name}} obtained from the service name in `docker-compose.yml`.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
 
-## Test and Deploy
+* Stop all services
+  ```shell
+  docker compose down
+  ```
 
-Use the built-in continuous integration in GitLab.
+## Project structure
+* `data` : Data source for RAG
+* `deployments` : Infra service deployments
+* `scripts` : Helper scripts that include functionalities such as:
+  * Data preparation
+  * Create kafka topic
+* `services` : All services provided by athena-mind-opensource.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## Customized data source
+Prepare your data in `data` folder with the following details:
+1. `data/config.json`
 
-***
+   ```json
+   [
+       {
+           "adapter": "web_account",
+           "name": "Account Expert",
+           "role": "Answer the question about four accounts: FCD (Foreign Currency Deposit), K-eSaving and other types of accounts",
+           "type": "rag",
+           "host": "service-adapter:8900",
+           "config": {
+               "dataset_path": "data/web_account/data/all_data.jsonl",
+               "dataset_doc_id": "doc_id",
+               "mongo_db_name": "athena-web-account",
+               "mongo_collection_name": "testing",
+               "opensearch_index": "athena-web-account",
+               "prompt": {
+                   "dir": "data/web_account/prompt",
+                   "query_generate_prompt": "query_generation_prompt.txt",
+                   "qa_prompt": "qa_prompt.txt",
+                   "response_control_prompt": "rc_prompt.txt"
+               }
+           }
+       },
+       {
+           "adapter": "general_handler",
+           "name": "General Handler",
+           "role": "Answer any questions about others",
+           "type": "custom",
+           "host": "service-adapter:8900"
+       }
+   ]
+   ```
+   __Fields Description:__
+   * __adapter__ - Must be the name of folder inside `data` folder.
+   * __name__ - Name of adapter
+   * __role__ - Short description about role of chatbot 
+   * __type__
+     * custom
+     * rag
+   * __host__ - Adapter endpoint
+   * __config__
+     * dataset_path - Path to refer your dataset
+     * dataset_doc_id - Document key name
+     * mongo_db_name - Name of db in mongo
+     * mongo_collection_name - Name of collection in mongo
+     * opensearch_index - Name of index in opensearch
+     * prompt
+       * dir - Directory that store prompt
+       * query_generate_prompt - File name of prompt for query generation
+       * qa_prompt - File name of prompt for question and answer prompt
+       * response_control_prompt - File name of prompt for response control
 
-# Editing this README
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+2. `data/{{adapter}}/data/{{name}}.jsonl`
+   > [!CAUTION]
+   > {{adapter}} - __MUST MATCH__ with field __adapter__ in `data/config.json`
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+   ```json
+   {
+     "doc_id": "method_with_kplus",
+     "url": [
+       "https://www.kasikornbank.com/th/personal/Digital-banking/Pages/k-esavings-account-opening-have-kplus.aspx"
+     ],
+     "title": [
+       "วิธีเปิดบัญชีออนไลน์ K-eSavings"
+     ],
+     "description": [
+       "เปิดปุ๊บ ใช้งานได้ปั๊บ ภายใน 5 ขั้นตอน",
+       "1. เข้าสู่ระบบ และเลือก \"บริการอื่น\" เพื่อเปิดบัญชีเงินฝาก",
+       "2. เลือก \"เปิดบัญชีเงินฝาก\" ในบริการอื่น และเลือก \"เปิดบัญชีใหม่\"",
+       "3. อ่านข้อตกลงและเงื่อนไข กรอกข้อมูลให้ครบถ้วน และเลือก \"ถัดไป\"",
+       "4. ตรวจสอบข้อมูลอีกครั้งหลังจากกรอกข้อมูล หากถูกต้องแล้วเลือก \"ยืนยัน\"",
+       "5. ลูกค้าจะได้รับรายละเอียดบัญชีผ่านทาง Feed SMS และอีเมลที่ได้ลงทะเบียนไว้กับธนาคาร"
+     ]
+   }
+   ```
+   __JSON Object__ can be customized, but it should include the following details: 
+   * __Document Key__ [string] - The field name __MUST MATCH__ the value of the key ___config.dataset_doc_id___ from `data/config.json` (i.e., doc_id)
+   * __Data Fields__ [list of string] - Can have more than one fields (i.e., url, title, description)
 
-## Name
-Choose a self-explaining name for your project.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+3. Re-create service
+   ```shell
+   docker compose up --build -d
+   ```
+   
+## Development
+If you want to customize the service for a specific case, please refer to the instruction below.
+* [Create adapter using predefined RAG](services/adapter/README.md#creating-an-adapter-using-predefined-rag)
+* [Create your customized adapter](services/adapter/README.md#creating-your-customized-adapter)
+* [Change the Vector Model](services/vector/README.md#model-update)
+* [Change the LLM Model](services/llm/README.md#model-update-for-hugging-face)
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## References
+* [Chainlit](https://docs.chainlit.io/get-started/overview) is an open-source Python package to build production ready Conversational AI.
+* [LangGraph](https://langchain-ai.github.io/langgraph/) is a library within the LangChain ecosystem that provides a framework for defining, coordinating, and executing multiple LLM agents (or chains) in a structured and efficient manner.
+* [LangChain](https://python.langchain.com/v0.2/docs/introduction/) is a framework for developing applications powered by large language models (LLMs).
+* [LangServe](https://python.langchain.com/v0.2/docs/langserve/) is a Python framework that helps developers deploy LangChain runnable and chains as REST APIs
 
 ## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+The project is licensed under the [Apache License 2.0](LICENSE).
