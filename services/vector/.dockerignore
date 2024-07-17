@@ -1,0 +1,8 @@
+tests/
+__pycache__/
+.pytest_cache/
+.coverage
+.coveragerc
+pytest.ini
+.git
+.gitignore

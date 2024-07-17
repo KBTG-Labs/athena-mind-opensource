@@ -1,0 +1,9 @@
+Metadata-Version: 2.1
+Name: mq_client
+Version: 0.1.0
+Summary: Message queue client
+Requires-Python: >=3.10
+Requires-Dist: confluent-kafka==2.3.0
+Requires-Dist: pydantic==2.6.4
+Requires-Dist: pydantic-settings==2.2.1
+Requires-Dist: aioredis==2.0.1

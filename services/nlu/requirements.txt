@@ -1,0 +1,14 @@
+chainlit==1.1.202
+langchain==0.2.1
+langchain-core==0.2.5
+langchain-community==0.2.1
+langgraph==0.0.59
+langserve[client]==0.2.1
+
+tenacity==8.2.2
+opentelemetry-api==1.25.0
+opentelemetry-sdk==1.25.0
+opentelemetry-instrumentation-logging==0.46b0
+opentelemetry-exporter-jaeger==1.21.0
+
+-e lib/mq_client

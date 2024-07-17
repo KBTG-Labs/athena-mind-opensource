@@ -1,0 +1,11 @@
+[run]
+omit =
+    tests/*
+[report]
+show_missing=true
+omit =
+    __init__.py
+    ./main.py
+    ./client/constructor.py
+    ./client/server.py
+    *_interface.py

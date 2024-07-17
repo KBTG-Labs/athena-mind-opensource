@@ -1,0 +1,17 @@
+services:
+  zookeeper:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: zookeeper
+  kafka:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka
+  kafka-init:
+    extends:
+      file: deployments/docker-compose-kafka.yml
+      service: kafka-init
+  service-vector:
+    env_file:
+      - ./.env
+    build: .
